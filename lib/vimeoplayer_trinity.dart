@@ -24,7 +24,7 @@ class VimeoPlayer extends StatefulWidget {
     required this.allowFullScreen,
     this.allowPlaybackSpeedChanging = false,
     Key? key,
-  })  : assert(id != null && allowFullScreen != null),
+  })  : assert(id != null),
         super(key: key);
 
   @override
@@ -56,7 +56,7 @@ class _VimeoPlayerState extends State<VimeoPlayer> {
   );
 
   //Custom controller
-  late VideoPlayerController _controller;
+  late VideoPlayerController? _controller;
   ChewieController? _chewieController;
 
   Future<void>? initFuture;
@@ -92,11 +92,11 @@ class _VimeoPlayerState extends State<VimeoPlayer> {
     _quality.getQualitiesSync().then((SplayTreeMap? value) {
       _qualityValue = value![value.lastKey()];
       _controller = VideoPlayerController.network(_qualityValue);
-      _controller.setLooping(looping);
-      if (autoPlay) _controller.play();
-      initFuture = _controller.initialize().then((value) {
+      _controller?.setLooping(looping);
+      if (autoPlay) _controller?.play();
+      initFuture = _controller?.initialize().then((value) {
         _chewieController = ChewieController(
-          videoPlayerController: _controller,
+          videoPlayerController: _controller!,
           // Prepare the video to be played and display the first frame
           autoInitialize: true,
           allowFullScreen: fullScreen,
@@ -104,7 +104,7 @@ class _VimeoPlayerState extends State<VimeoPlayer> {
           systemOverlaysOnEnterFullScreen: [SystemUiOverlay.bottom],
           deviceOrientationsAfterFullScreen: [DeviceOrientation.portraitDown, DeviceOrientation.portraitUp],
           systemOverlaysAfterFullScreen: [SystemUiOverlay.top, SystemUiOverlay.bottom],
-          aspectRatio: _controller.value.aspectRatio,
+          aspectRatio: _controller?.value.aspectRatio,
           looping: looping,
           autoPlay: autoPlay,
           allowPlaybackSpeedChanging: allowPlaybackSpeedChanging,
@@ -143,23 +143,23 @@ class _VimeoPlayerState extends State<VimeoPlayer> {
                 if (snapshot.connectionState == ConnectionState.done) {
                   //Controlling width and height
                   double delta = MediaQuery.of(context).size.width -
-                      MediaQuery.of(context).size.height * _controller.value.aspectRatio;
+                      MediaQuery.of(context).size.height * _controller!.value.aspectRatio;
 
                   //Calculating the width and height of the video player relative to the sides
                   // and orientation of the device
                   if (MediaQuery.of(context).orientation == Orientation.portrait || delta < 0) {
-                    videoHeight = MediaQuery.of(context).size.width / _controller.value.aspectRatio;
+                    videoHeight = MediaQuery.of(context).size.width / _controller!.value.aspectRatio;
                     videoWidth = MediaQuery.of(context).size.width;
                     videoMargin = 0;
                   } else {
                     videoHeight = MediaQuery.of(context).size.height;
-                    videoWidth = videoHeight * _controller.value.aspectRatio;
+                    videoWidth = videoHeight * _controller!.value.aspectRatio;
                     videoMargin = (MediaQuery.of(context).size.width - videoWidth) / 2;
                   }
 
                   //We start from the same place where we left off when changing quality
-                  if (_seek && _controller.value.duration.inSeconds > 2) {
-                    _controller.seekTo(Duration(seconds: position!));
+                  if (_seek && _controller!.value.duration.inSeconds > 2) {
+                    _controller!.seekTo(Duration(seconds: position!));
                     _seek = false;
                   }
 
@@ -230,7 +230,7 @@ class _VimeoPlayerState extends State<VimeoPlayer> {
             },
             onDoubleTap: () {
               setState(() {
-                _controller.seekTo(Duration(seconds: _controller.value.position.inSeconds - 10));
+                _controller!.seekTo(Duration(seconds: _controller!.value.position.inSeconds - 10));
               });
             }),
         GestureDetector(
@@ -263,7 +263,7 @@ class _VimeoPlayerState extends State<VimeoPlayer> {
             },
             onDoubleTap: () {
               setState(() {
-                _controller.seekTo(Duration(seconds: _controller.value.position.inSeconds + 10));
+                _controller!.seekTo(Duration(seconds: _controller!.value.position.inSeconds + 10));
               });
             }),
       ],
@@ -272,7 +272,7 @@ class _VimeoPlayerState extends State<VimeoPlayer> {
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller?.dispose();
     initFuture = null;
     super.dispose();
   }
