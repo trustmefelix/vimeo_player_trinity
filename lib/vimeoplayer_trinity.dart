@@ -1,5 +1,7 @@
 library vimeoplayer;
 
+import 'dart:collection';
+
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
@@ -87,8 +89,8 @@ class _VimeoPlayerState extends State<VimeoPlayer> {
     _quality = QualityLinks(_id);
 
     //Initializing video controllers when receiving data from Vimeo
-    _quality.getQualitiesSync().then((value) {
-      _qualityValue = value[value.lastKey()];
+    _quality.getQualitiesSync().then((SplayTreeMap? value) {
+      _qualityValue = value![value.lastKey()];
       _controller = VideoPlayerController.network(_qualityValue);
       _controller.setLooping(looping);
       if (autoPlay) _controller.play();
