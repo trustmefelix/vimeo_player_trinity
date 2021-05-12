@@ -90,36 +90,38 @@ class _VimeoPlayerState extends State<VimeoPlayer> {
 
     //Initializing video controllers when receiving data from Vimeo
     _quality.getQualitiesSync().then((SplayTreeMap? value) {
-      _qualityValue = value![value.lastKey()];
-      _controller = VideoPlayerController.network(_qualityValue);
-      _controller?.setLooping(looping);
-      if (autoPlay) _controller?.play();
-      initFuture = _controller?.initialize().then((value) {
-        _chewieController = ChewieController(
-          videoPlayerController: _controller!,
-          // Prepare the video to be played and display the first frame
-          autoInitialize: true,
-          allowFullScreen: fullScreen,
-          deviceOrientationsOnEnterFullScreen: [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight],
-          systemOverlaysOnEnterFullScreen: [SystemUiOverlay.bottom],
-          deviceOrientationsAfterFullScreen: [DeviceOrientation.portraitDown, DeviceOrientation.portraitUp],
-          systemOverlaysAfterFullScreen: [SystemUiOverlay.top, SystemUiOverlay.bottom],
-          aspectRatio: _controller?.value.aspectRatio,
-          looping: looping,
-          autoPlay: autoPlay,
-          allowPlaybackSpeedChanging: allowPlaybackSpeedChanging,
-          // Errors can occur for example when trying to play a video
-          // from a non-existent URL
-          errorBuilder: (context, errorMessage) {
-            return Center(child: Text(errorMessage, style: TextStyle(color: Colors.white)));
-          },
-        );
-      });
+      if (value != null) {
+        _qualityValue = value[value.lastKey()];
+        _controller = VideoPlayerController.network(_qualityValue);
+        _controller?.setLooping(looping);
+        if (autoPlay) _controller?.play();
+        initFuture = _controller?.initialize().then((value) {
+          _chewieController = ChewieController(
+            videoPlayerController: _controller!,
+            // Prepare the video to be played and display the first frame
+            autoInitialize: true,
+            allowFullScreen: fullScreen,
+            deviceOrientationsOnEnterFullScreen: [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight],
+            systemOverlaysOnEnterFullScreen: [SystemUiOverlay.bottom],
+            deviceOrientationsAfterFullScreen: [DeviceOrientation.portraitDown, DeviceOrientation.portraitUp],
+            systemOverlaysAfterFullScreen: [SystemUiOverlay.top, SystemUiOverlay.bottom],
+            aspectRatio: _controller?.value.aspectRatio,
+            looping: looping,
+            autoPlay: autoPlay,
+            allowPlaybackSpeedChanging: allowPlaybackSpeedChanging,
+            // Errors can occur for example when trying to play a video
+            // from a non-existent URL
+            errorBuilder: (context, errorMessage) {
+              return Center(child: Text(errorMessage, style: TextStyle(color: Colors.white)));
+            },
+          );
+        });
 
-      //Update orientation and rebuilding page
-      setState(() {
-        SystemChrome.setPreferredOrientations([DeviceOrientation.portraitDown, DeviceOrientation.portraitUp]);
-      });
+        //Update orientation and rebuilding page
+        setState(() {
+          SystemChrome.setPreferredOrientations([DeviceOrientation.portraitDown, DeviceOrientation.portraitUp]);
+        });
+      }
     });
 
     //The video page takes precedence over portrait orientation
@@ -170,7 +172,7 @@ class _VimeoPlayerState extends State<VimeoPlayer> {
                       child: Chewie(controller: _chewieController!),
                     );
                   }
-                  return Container();
+                  return Center(child: Text('Fail to init controller'));
                 } else {
                   return Center(
                       heightFactor: 6,
